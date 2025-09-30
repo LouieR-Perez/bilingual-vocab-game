@@ -1,0 +1,10 @@
+body { background: #f8fafc; }
+.card { border-radius: 1rem; }
+.option-btn { text-align: left; }
+.shake { animation: shake 300ms ease-in-out 1; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+}
