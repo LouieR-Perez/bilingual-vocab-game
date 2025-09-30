@@ -26,6 +26,10 @@ const btnRestart = document.getElementById('btn-restart');
 const toggleAutoplaySetup  = document.getElementById('toggle-autoplay');
 const toggleAutoplayInGame = document.getElementById('toggle-autoplay-ingame');
 
+// NEW: Spanish voice dropdown + refresh
+const voiceSelectEs = document.getElementById('voice-select-es');
+const btnRefreshVoices = document.getElementById('btn-refresh-voices');
+
 const finishPlayer = document.getElementById('finish-player');
 const finishScore  = document.getElementById('finish-score');
 const finishReplay = document.getElementById('finish-replay');
@@ -45,6 +49,9 @@ const STATE = {
   currentText: '',
   currentLang: 'es-MX',
   awaiting: true,
+  // NEW: voice preferences
+  voices: [],
+  spanishVoiceURI: '',   // saved user's choice (voiceURI); '' means auto
 };
 
 // ========== PERSIST PREFERENCES ==========
@@ -54,6 +61,7 @@ function savePrefs() {
     localStorage.setItem('bv_mode', STATE.mode);
     localStorage.setItem('bv_autoplay', String(STATE.autoplay));
     localStorage.setItem('bv_categories', JSON.stringify(STATE.categories));
+    localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
   } catch {}
 }
 
@@ -63,6 +71,8 @@ function loadPrefs() {
     const m = localStorage.getItem('bv_mode');
     const a = localStorage.getItem('bv_autoplay');
     const c = localStorage.getItem('bv_categories');
+    const v = localStorage.getItem('bv_voice_es');
+
     if (p) inputName.value = p;
     if (m) document.getElementById(`mode-${m}`)?.setAttribute('checked', 'checked');
     if (a !== null) {
@@ -73,6 +83,9 @@ function loadPrefs() {
     if (c) {
       const cats = JSON.parse(c);
       STATE.categories = Array.isArray(cats) ? cats : [];
+    }
+    if (typeof v === 'string') {
+      STATE.spanishVoiceURI = v;
     }
   } catch {}
 }
@@ -90,6 +103,59 @@ function unique(arr) {
   return Array.from(new Set(arr));
 }
 
+// Web Speech API voice loading (robust on mobile)
+function getAllVoices() {
+  return new Promise((resolve) => {
+    const synth = window.speechSynthesis;
+    let voices = synth.getVoices();
+    if (voices && voices.length) {
+      resolve(voices);
+      return;
+    }
+    const onChange = () => {
+      voices = synth.getVoices();
+      if (voices && voices.length) {
+        synth.removeEventListener('voiceschanged', onChange);
+        resolve(voices);
+      }
+    };
+    synth.addEventListener('voiceschanged', onChange);
+    // Final fallback in case event never fires
+    setTimeout(() => resolve(synth.getVoices() || []), 600);
+  });
+}
+
+// Populate the Spanish voice dropdown
+async function populateVoiceSelectEs() {
+  if (!('speechSynthesis' in window) || !voiceSelectEs) return;
+
+  STATE.voices = await getAllVoices();
+  const spanish = STATE.voices.filter(v => (v.lang || '').toLowerCase().startsWith('es'));
+  // Preserve first option = Auto
+  voiceSelectEs.innerHTML = '<option value="">Auto (device default)</option>';
+
+  // Sort by lang then name for consistency
+  spanish.sort((a, b) => {
+    const la = (a.lang || ''), lb = (b.lang || '');
+    if (la !== lb) return la.localeCompare(lb);
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  spanish.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.voiceURI; // stable-ish ID exposed by API
+    opt.textContent = `${v.name} — ${v.lang}`;
+    voiceSelectEs.appendChild(opt);
+  });
+
+  // Reselect saved preference if available
+  if (STATE.spanishVoiceURI) {
+    const match = Array.from(voiceSelectEs.options).find(o => o.value === STATE.spanishVoiceURI);
+    if (match) voiceSelectEs.value = STATE.spanishVoiceURI;
+    else voiceSelectEs.value = ''; // fallback to auto
+  }
+}
+
 // Randomly pick n items from an array (without replacement)
 function pickN(array, n, exclude = []) {
   const pool = array.filter(v => !exclude.includes(v));
@@ -102,27 +168,38 @@ function pickN(array, n, exclude = []) {
   return result;
 }
 
-// Web Speech API helper
-function speak(text, lang) {
+// Web Speech API helper (uses user-selected Spanish voice if set)
+async function speak(text, lang) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
+
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  utter.rate = 0.95;
+  utter.lang  = lang;
+  utter.rate  = 0.95;
   utter.pitch = 1.0;
 
-  // Try to select a Spanish voice for Spanish prompts
-  if (lang.startsWith('es')) {
-    const voices = window.speechSynthesis.getVoices();
-    // Prefer Mexican Spanish, then Spain, then any Spanish
-    let spanishVoice = voices.find(v => v.lang === 'es-MX')
-      || voices.find(v => v.lang === 'es-ES')
-      || voices.find(v => v.lang.startsWith('es'));
-    if (spanishVoice) {
-      utter.voice = spanishVoice;
+  if (lang && lang.toLowerCase().startsWith('es')) {
+    // Ensure voices loaded + dropdown populated
+    if (!STATE.voices.length) {
+      STATE.voices = await getAllVoices();
     }
+    let chosen = null;
+
+    // User-picked voice by voiceURI
+    if (STATE.spanishVoiceURI) {
+      chosen = STATE.voices.find(v => v.voiceURI === STATE.spanishVoiceURI);
+    }
+
+    // If user hasn't chosen or their choice isn't available, try reasonable defaults
+    if (!chosen) {
+      const voices = STATE.voices;
+      const esmx = voices.find(v => (v.lang || '').toLowerCase() === 'es-mx');
+      const eses = voices.find(v => (v.lang || '').toLowerCase() === 'es-es');
+      chosen = esmx || eses || voices.find(v => (v.lang || '').toLowerCase().startsWith('es')) || null;
+    }
+
+    if (chosen) utter.voice = chosen;
   }
-  // For English, you can add similar logic if needed
 
   window.speechSynthesis.speak(utter);
 }
@@ -270,7 +347,6 @@ function nextQuestion() {
 
   // Auto-play if enabled and supported
   if (('speechSynthesis' in window) && (STATE.autoplay || toggleAutoplayInGame.checked)) {
-    // small delay so user sees the word first
     setTimeout(() => speak(STATE.currentText, STATE.currentLang), 250);
   }
 
@@ -304,7 +380,7 @@ formSetup.addEventListener('submit', (e) => {
   startGame();
 });
 
-btnDemo.addEventListener('click', () => {
+btnDemo.addEventListener('click', async () => {
   inputName.value = inputName.value.trim() || 'Player';
   document.getElementById('mode-es').checked = true;
   // Select all categories for demo
@@ -312,6 +388,14 @@ btnDemo.addEventListener('click', () => {
   renderCategoryCheckboxes();
   document.querySelectorAll('.cat-check').forEach(cb => cb.checked = true);
   toggleAutoplaySetup.checked = true;
+
+  // Try to auto-pick an es-MX voice if present
+  await populateVoiceSelectEs();
+  const opt = Array.from(voiceSelectEs.options).find(o => /es-MX/i.test(o.textContent));
+  if (opt) voiceSelectEs.value = opt.value;
+  STATE.spanishVoiceURI = voiceSelectEs.value;
+  savePrefs();
+
   startGame();
 });
 
@@ -348,12 +432,14 @@ btnRestart.addEventListener('click', () => {
   updateScoreUI();
 });
 
+// In-game toggle keeps preferences in sync
 toggleAutoplayInGame.addEventListener('change', () => {
   STATE.autoplay = toggleAutoplayInGame.checked;
   toggleAutoplaySetup.checked = STATE.autoplay;
   savePrefs();
 });
 
+// Finish screen buttons
 finishReplay.addEventListener('click', () => {
   STATE.round = 0;
   STATE.score = 0;
@@ -384,7 +470,7 @@ if (finishCategory) {
   });
 }
 
-// Hide speaker if TTS unsupported
+// Speaker button
 if (!('speechSynthesis' in window)) {
   btnSpeak.classList.add('d-none');
 } else {
@@ -393,12 +479,31 @@ if (!('speechSynthesis' in window)) {
   });
 }
 
-// Initialize category UI, load preferences, and seed defaults
+// Voice dropdown + refresh handlers
+if (voiceSelectEs) {
+  voiceSelectEs.addEventListener('change', () => {
+    STATE.spanishVoiceURI = voiceSelectEs.value; // '' = Auto
+    savePrefs();
+  });
+}
+if (btnRefreshVoices) {
+  btnRefreshVoices.addEventListener('click', () => {
+    populateVoiceSelectEs();
+  });
+}
+
+// Initialize UI on load
 loadPrefs();
 renderCategoryCheckboxes();
-// If we have saved categories, reflect them in the UI
+
 if (STATE.categories.length) {
   document.querySelectorAll('.cat-check').forEach(cb => {
     cb.checked = STATE.categories.includes(cb.value);
   });
+}
+
+// Populate voices ASAP; also handle late availability
+if ('speechSynthesis' in window) {
+  populateVoiceSelectEs();
+  window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelectEs);
 }

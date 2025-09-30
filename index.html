@@ -66,6 +66,19 @@
                 <div class="form-text">Uses your browser’s Text-to-Speech (en-US / es-MX).</div>
               </div>
 
+              <!-- Spanish voice selector -->
+              <div class="col-12">
+                <label for="voice-select-es" class="form-label">Spanish voice (optional)</label>
+                <div class="d-flex gap-2 flex-wrap">
+                  <select id="voice-select-es" class="form-select" style="max-width: 480px;">
+                    <option value="">Auto (device default)</option>
+                  </select>
+                  <button id="btn-refresh-voices" class="btn btn-outline-secondary" type="button">
+                    Refresh voices
+                  </button>
+                </div>
+                <div class="form-text">Choose a specific Spanish voice for pronunciation (if available).</div>
+              </div>
               <div class="col-12 d-grid d-sm-flex gap-2">
                 <button class="btn btn-primary" type="submit">Start</button>
                 <button class="btn btn-outline-secondary" type="button" id="btn-demo">Quick demo</button>
