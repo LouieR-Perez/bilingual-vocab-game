@@ -211,6 +211,7 @@ function nextQuestion() {
 
   STATE.awaiting = true;
   feedback.textContent = '';
+  feedback.classList.remove('text-success', 'text-danger');
   optionsGrid.innerHTML = '';
 
   const wordIdx = STATE.order[STATE.round];
