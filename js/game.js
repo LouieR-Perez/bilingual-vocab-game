@@ -361,6 +361,14 @@ finishSwitch.addEventListener('click', () => {
   nextQuestion();
 });
 
+// New: Select new category button
+const finishCategory = document.getElementById('finish-category');
+if (finishCategory) {
+  finishCategory.addEventListener('click', () => {
+    showWelcome();
+  });
+}
+
 // Hide speaker if TTS unsupported
 if (!('speechSynthesis' in window)) {
   btnSpeak.classList.add('d-none');
