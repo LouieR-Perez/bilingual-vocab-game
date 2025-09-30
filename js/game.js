@@ -107,9 +107,23 @@ function speak(text, lang) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang  = lang;   // 'es-MX' or 'en-US'
-  utter.rate  = 0.95;   // slightly slower for clarity
+  utter.lang = lang;
+  utter.rate = 0.95;
   utter.pitch = 1.0;
+
+  // Try to select a Spanish voice for Spanish prompts
+  if (lang.startsWith('es')) {
+    const voices = window.speechSynthesis.getVoices();
+    // Prefer Mexican Spanish, then Spain, then any Spanish
+    let spanishVoice = voices.find(v => v.lang === 'es-MX')
+      || voices.find(v => v.lang === 'es-ES')
+      || voices.find(v => v.lang.startsWith('es'));
+    if (spanishVoice) {
+      utter.voice = spanishVoice;
+    }
+  }
+  // For English, you can add similar logic if needed
+
   window.speechSynthesis.speak(utter);
 }
 
