@@ -4,7 +4,7 @@ const WORDS = [
   // Animals
   { en: "dog",     es: "perro",      cat: "Animals",   img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg" },
   { en: "cat",     es: "gato",       cat: "Animals",   img: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" },
-  { en: "bird",    es: "pájaro",     cat: "Animals",   img: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Bird_on_a_branch.jpg" },
+  { en: "bird",    es: "pájaro",     cat: "Animals",   img: "https://upload.wikimedia.org/wikipedia/commons/b/b3/Female_house_sparrow_at_Kodai.jpg" },
   { en: "fish",    es: "pez",        cat: "Animals",   img: "https://upload.wikimedia.org/wikipedia/commons/1/12/Fish_01.jpg" },
 
   // Food
