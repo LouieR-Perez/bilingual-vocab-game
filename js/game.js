@@ -335,6 +335,18 @@ function nextQuestion() {
   STATE.currentText = prompt;
   STATE.currentLang = STATE.mode === 'es' ? 'es-MX' : 'en-US';
 
+  // Show image for the current word (if available)
+  const promptImage = document.getElementById('prompt-image');
+  if (pair.img) {
+    promptImage.src = pair.img;
+    promptImage.alt = `Image of ${prompt}`;
+    promptImage.style.display = '';
+  } else {
+    promptImage.src = '';
+    promptImage.alt = '';
+    promptImage.style.display = 'none';
+  }
+
   // Build distractor pool from selected categories; fallback to global pool if needed
   const selectedPool = STATE.mode === 'es'
     ? STATE.poolWords.map(w => w.en)
