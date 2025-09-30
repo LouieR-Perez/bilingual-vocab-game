@@ -189,7 +189,7 @@ async function speak(text, lang) {
 
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang  = lang;
-  utter.rate  = 0.95;
+  utter.rate  = 0.75; // slower for clarity
   utter.pitch = 1.0;
 
   if (lang && lang.toLowerCase().startsWith('es')) {
