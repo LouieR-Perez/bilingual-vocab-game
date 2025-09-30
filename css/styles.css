@@ -4,10 +4,18 @@
   background: #f3e8ff;
   box-shadow: 0 1px 4px 0 #a5b4fc33;
   border-radius: 0.5rem;
-  max-width: 180px;
-  max-height: 120px;
+  max-width: 320px;
+  max-height: 200px;
   object-fit: contain;
   margin-bottom: 0.5em;
+  width: 100%;
+}
+
+@media (max-width: 575.98px) {
+  #prompt-image {
+    max-width: 180px;
+    max-height: 120px;
+  }
 }
 /* Base look & feel (yours, preserved) */
 body {
