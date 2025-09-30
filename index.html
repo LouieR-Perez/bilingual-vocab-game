@@ -68,16 +68,26 @@
 
               <!-- Spanish voice selector -->
               <div class="col-12">
-                <label for="voice-select-es" class="form-label">Spanish voice (optional)</label>
-                <div class="d-flex gap-2 flex-wrap">
-                  <select id="voice-select-es" class="form-select" style="max-width: 480px;">
-                    <option value="">Auto (device default)</option>
-                  </select>
-                  <button id="btn-refresh-voices" class="btn btn-outline-secondary" type="button">
-                    Refresh voices
-                  </button>
+                <div id="voice-select-section">
+                  <div class="d-flex align-items-center mb-1">
+                    <label for="voice-select-es" class="form-label mb-0">Spanish voice (optional)</label>
+                    <div class="ms-2">
+                      <input class="form-check-input" type="checkbox" id="toggle-voice-select" style="vertical-align: middle;" />
+                      <label class="form-check-label small" for="toggle-voice-select" id="toggle-voice-label">Hide</label>
+                    </div>
+                  </div>
+                  <div id="voice-select-controls">
+                    <div class="d-flex gap-2 flex-wrap">
+                      <select id="voice-select-es" class="form-select" style="max-width: 480px;">
+                        <option value="">Auto (device default)</option>
+                      </select>
+                      <button id="btn-refresh-voices" class="btn btn-outline-secondary" type="button">
+                        Refresh voices
+                      </button>
+                    </div>
+                    <div class="form-text">Choose a specific Spanish voice for pronunciation (if available).</div>
+                  </div>
                 </div>
-                <div class="form-text">Choose a specific Spanish voice for pronunciation (if available).</div>
               </div>
               <div class="col-12 d-grid d-sm-flex gap-2">
                 <button class="btn btn-primary" type="submit">Start</button>

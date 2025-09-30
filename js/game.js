@@ -1,4 +1,8 @@
 // ========== ELEMENT REFERENCES ==========
+const voiceSelectSection = document.getElementById('voice-select-section');
+const voiceSelectControls = document.getElementById('voice-select-controls');
+const toggleVoiceSelect = document.getElementById('toggle-voice-select');
+const toggleVoiceLabel = document.getElementById('toggle-voice-label');
 const elWelcome  = document.getElementById('screen-welcome');
 const elGame     = document.getElementById('screen-game');
 const elFinish   = document.getElementById('screen-finish');
@@ -52,16 +56,18 @@ const STATE = {
   // NEW: voice preferences
   voices: [],
   spanishVoiceURI: '',   // saved user's choice (voiceURI); '' means auto
+  showVoiceSelect: true, // show/hide Spanish voice selector
 };
 
 // ========== PERSIST PREFERENCES ==========
 function savePrefs() {
   try {
-    localStorage.setItem('bv_player', STATE.player);
-    localStorage.setItem('bv_mode', STATE.mode);
-    localStorage.setItem('bv_autoplay', String(STATE.autoplay));
-    localStorage.setItem('bv_categories', JSON.stringify(STATE.categories));
-    localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
+  localStorage.setItem('bv_player', STATE.player);
+  localStorage.setItem('bv_mode', STATE.mode);
+  localStorage.setItem('bv_autoplay', String(STATE.autoplay));
+  localStorage.setItem('bv_categories', JSON.stringify(STATE.categories));
+  localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
+  localStorage.setItem('bv_show_voice_select', String(STATE.showVoiceSelect));
   } catch {}
 }
 
@@ -72,6 +78,7 @@ function loadPrefs() {
     const a = localStorage.getItem('bv_autoplay');
     const c = localStorage.getItem('bv_categories');
     const v = localStorage.getItem('bv_voice_es');
+    const s = localStorage.getItem('bv_show_voice_select');
 
     if (p) inputName.value = p;
     if (m) document.getElementById(`mode-${m}`)?.setAttribute('checked', 'checked');
@@ -86,6 +93,9 @@ function loadPrefs() {
     }
     if (typeof v === 'string') {
       STATE.spanishVoiceURI = v;
+    }
+    if (typeof s === 'string') {
+      STATE.showVoiceSelect = s === 'true';
     }
   } catch {}
 }
@@ -503,6 +513,20 @@ if (btnRefreshVoices) {
 // Initialize UI on load
 loadPrefs();
 renderCategoryCheckboxes();
+
+// Show/hide Spanish voice selector section based on preference
+if (voiceSelectControls && toggleVoiceSelect && toggleVoiceLabel) {
+  // Only the dropdown, refresh button, and help text are hidden/shown
+  voiceSelectControls.style.display = STATE.showVoiceSelect ? '' : 'none';
+  toggleVoiceSelect.checked = STATE.showVoiceSelect;
+  toggleVoiceLabel.textContent = STATE.showVoiceSelect ? 'Hide' : 'Unhide';
+  toggleVoiceSelect.addEventListener('change', () => {
+    STATE.showVoiceSelect = toggleVoiceSelect.checked;
+    voiceSelectControls.style.display = STATE.showVoiceSelect ? '' : 'none';
+    toggleVoiceLabel.textContent = STATE.showVoiceSelect ? 'Hide' : 'Unhide';
+    savePrefs();
+  });
+}
 
 if (STATE.categories.length) {
   document.querySelectorAll('.cat-check').forEach(cb => {
