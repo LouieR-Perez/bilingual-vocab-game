@@ -130,7 +130,11 @@ async function populateVoiceSelectEs() {
   if (!('speechSynthesis' in window) || !voiceSelectEs) return;
 
   STATE.voices = await getAllVoices();
-  const spanish = STATE.voices.filter(v => (v.lang || '').toLowerCase().startsWith('es'));
+  // Only allow es-MX, es-US, and other Spanish voices except es-ES
+  const spanish = STATE.voices.filter(v => {
+    const lang = (v.lang || '').toLowerCase();
+    return lang.startsWith('es') && lang !== 'es-es';
+  });
   // Preserve first option = Auto
   voiceSelectEs.innerHTML = '<option value="">Auto (device default)</option>';
 
@@ -193,9 +197,13 @@ async function speak(text, lang) {
     // If user hasn't chosen or their choice isn't available, try reasonable defaults
     if (!chosen) {
       const voices = STATE.voices;
+      // Only allow es-MX, es-US, and other Spanish voices except es-ES
       const esmx = voices.find(v => (v.lang || '').toLowerCase() === 'es-mx');
-      const eses = voices.find(v => (v.lang || '').toLowerCase() === 'es-es');
-      chosen = esmx || eses || voices.find(v => (v.lang || '').toLowerCase().startsWith('es')) || null;
+      const esus = voices.find(v => (v.lang || '').toLowerCase() === 'es-us');
+      chosen = esmx || esus || voices.find(v => {
+        const lang = (v.lang || '').toLowerCase();
+        return lang.startsWith('es') && lang !== 'es-es';
+      }) || null;
     }
 
     if (chosen) utter.voice = chosen;
