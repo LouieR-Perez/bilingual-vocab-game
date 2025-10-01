@@ -3,6 +3,7 @@ const voiceSelectSection = document.getElementById('voice-select-section');
 const voiceSelectControls = document.getElementById('voice-select-controls');
 const toggleVoiceSelect = document.getElementById('toggle-voice-select');
 const toggleVoiceLabel = document.getElementById('toggle-voice-label');
+
 const elWelcome  = document.getElementById('screen-welcome');
 const elGame     = document.getElementById('screen-game');
 const elFinish   = document.getElementById('screen-finish');
@@ -14,11 +15,15 @@ const btnDemo    = document.getElementById('btn-demo');
 const categoryGrid = document.getElementById('category-grid');
 const btnSelectAll = document.getElementById('btn-select-all');
 
+const levelGrid = document.getElementById('level-grid');
+const btnSelectAllLevels = document.getElementById('btn-select-all-levels');
+
 const subtitleUI = document.getElementById('subtitle-ui');
 const scoreUI    = document.getElementById('score-ui');
 const uiPlayer   = document.getElementById('ui-player');
 
 const promptWord = document.getElementById('prompt-word');
+const promptImage = document.getElementById('prompt-image');
 const btnSpeak   = document.getElementById('btn-speak');
 const optionsGrid= document.getElementById('options-grid');
 const feedback   = document.getElementById('feedback');
@@ -30,7 +35,7 @@ const btnRestart = document.getElementById('btn-restart');
 const toggleAutoplaySetup  = document.getElementById('toggle-autoplay');
 const toggleAutoplayInGame = document.getElementById('toggle-autoplay-ingame');
 
-// NEW: Spanish voice dropdown + refresh
+// Spanish voice dropdown + refresh
 const voiceSelectEs = document.getElementById('voice-select-es');
 const btnRefreshVoices = document.getElementById('btn-refresh-voices');
 
@@ -45,29 +50,31 @@ const STATE = {
   mode: 'es',            // 'es' = learn Spanish, 'en' = learn English
   autoplay: false,       // auto-pronounce prompt
   allWords: WORDS,       // master list
-  poolWords: [],         // filtered by categories
+  poolWords: [],         // filtered by categories + levels
   categories: [],        // selected categories
+  levels: [],            // selected levels
   order: [],             // shuffled indices into poolWords
   round: 0,
   score: 0,
   currentText: '',
   currentLang: 'es-MX',
   awaiting: true,
-  // NEW: voice preferences
+  // voice prefs
   voices: [],
-  spanishVoiceURI: '',   // saved user's choice (voiceURI); '' means auto
-  showVoiceSelect: true, // show/hide Spanish voice selector
+  spanishVoiceURI: '',   // saved user's choice (voiceURI); '' = auto
+  showVoiceSelect: true
 };
 
 // ========== PERSIST PREFERENCES ==========
 function savePrefs() {
   try {
-  localStorage.setItem('bv_player', STATE.player);
-  localStorage.setItem('bv_mode', STATE.mode);
-  localStorage.setItem('bv_autoplay', String(STATE.autoplay));
-  localStorage.setItem('bv_categories', JSON.stringify(STATE.categories));
-  localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
-  localStorage.setItem('bv_show_voice_select', String(STATE.showVoiceSelect));
+    localStorage.setItem('bv_player', STATE.player);
+    localStorage.setItem('bv_mode', STATE.mode);
+    localStorage.setItem('bv_autoplay', String(STATE.autoplay));
+    localStorage.setItem('bv_categories', JSON.stringify(STATE.categories));
+    localStorage.setItem('bv_levels', JSON.stringify(STATE.levels));
+    localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
+    localStorage.setItem('bv_show_voice_select', String(STATE.showVoiceSelect));
   } catch {}
 }
 
@@ -77,6 +84,7 @@ function loadPrefs() {
     const m = localStorage.getItem('bv_mode');
     const a = localStorage.getItem('bv_autoplay');
     const c = localStorage.getItem('bv_categories');
+    const l = localStorage.getItem('bv_levels');
     const v = localStorage.getItem('bv_voice_es');
     const s = localStorage.getItem('bv_show_voice_select');
 
@@ -91,12 +99,12 @@ function loadPrefs() {
       const cats = JSON.parse(c);
       STATE.categories = Array.isArray(cats) ? cats : [];
     }
-    if (typeof v === 'string') {
-      STATE.spanishVoiceURI = v;
+    if (l) {
+      const lv = JSON.parse(l);
+      STATE.levels = Array.isArray(lv) ? lv : [];
     }
-    if (typeof s === 'string') {
-      STATE.showVoiceSelect = s === 'true';
-    }
+    if (typeof v === 'string') STATE.spanishVoiceURI = v;
+    if (typeof s === 'string') STATE.showVoiceSelect = (s === 'true');
   } catch {}
 }
 
@@ -108,20 +116,14 @@ function shuffle(arr) {
   }
   return arr;
 }
-
 function unique(arr) {
   return Array.from(new Set(arr));
 }
-
-// Web Speech API voice loading (robust on mobile)
 function getAllVoices() {
   return new Promise((resolve) => {
     const synth = window.speechSynthesis;
     let voices = synth.getVoices();
-    if (voices && voices.length) {
-      resolve(voices);
-      return;
-    }
+    if (voices && voices.length) return resolve(voices);
     const onChange = () => {
       voices = synth.getVoices();
       if (voices && voices.length) {
@@ -130,99 +132,62 @@ function getAllVoices() {
       }
     };
     synth.addEventListener('voiceschanged', onChange);
-    // Final fallback in case event never fires
     setTimeout(() => resolve(synth.getVoices() || []), 600);
   });
 }
 
-// Populate the Spanish voice dropdown
+// Voice dropdown
 async function populateVoiceSelectEs() {
   if (!('speechSynthesis' in window) || !voiceSelectEs) return;
-
   STATE.voices = await getAllVoices();
-  // Only allow es-MX, es-US, and other Spanish voices except es-ES
-  const spanish = STATE.voices.filter(v => {
-    const lang = (v.lang || '').toLowerCase();
-    return lang.startsWith('es') && lang !== 'es-es';
-  });
-  // Preserve first option = Auto
+  const spanish = STATE.voices.filter(v => (v.lang || '').toLowerCase().startsWith('es'));
   voiceSelectEs.innerHTML = '<option value="">Auto (device default)</option>';
-
-  // Sort by lang then name for consistency
   spanish.sort((a, b) => {
     const la = (a.lang || ''), lb = (b.lang || '');
     if (la !== lb) return la.localeCompare(lb);
     return (a.name || '').localeCompare(b.name || '');
   });
-
   spanish.forEach(v => {
     const opt = document.createElement('option');
-    opt.value = v.voiceURI; // stable-ish ID exposed by API
+    opt.value = v.voiceURI;
     opt.textContent = `${v.name} — ${v.lang}`;
     voiceSelectEs.appendChild(opt);
   });
-
-  // Reselect saved preference if available
   if (STATE.spanishVoiceURI) {
     const match = Array.from(voiceSelectEs.options).find(o => o.value === STATE.spanishVoiceURI);
-    if (match) voiceSelectEs.value = STATE.spanishVoiceURI;
-    else voiceSelectEs.value = ''; // fallback to auto
+    voiceSelectEs.value = match ? STATE.spanishVoiceURI : '';
   }
 }
 
-// Randomly pick n items from an array (without replacement)
-function pickN(array, n, exclude = []) {
-  const pool = array.filter(v => !exclude.includes(v));
-  const result = [];
-  const copy = [...pool];
-  while (result.length < n && copy.length) {
-    const i = Math.floor(Math.random() * copy.length);
-    result.push(copy.splice(i, 1)[0]);
-  }
-  return result;
-}
-
-// Web Speech API helper (uses user-selected Spanish voice if set)
+// Speak helper
 async function speak(text, lang) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang  = lang;
-  utter.rate  = 0.75; // slower for clarity
+  utter.rate  = 0.9;
   utter.pitch = 1.0;
 
-  if (lang && lang.toLowerCase().startsWith('es')) {
-    // Ensure voices loaded + dropdown populated
-    if (!STATE.voices.length) {
-      STATE.voices = await getAllVoices();
-    }
+  if (lang.toLowerCase().startsWith('es')) {
+    if (!STATE.voices.length) STATE.voices = await getAllVoices();
     let chosen = null;
-
-    // User-picked voice by voiceURI
     if (STATE.spanishVoiceURI) {
       chosen = STATE.voices.find(v => v.voiceURI === STATE.spanishVoiceURI);
     }
-
-    // If user hasn't chosen or their choice isn't available, try reasonable defaults
     if (!chosen) {
       const voices = STATE.voices;
-      // Only allow es-MX, es-US, and other Spanish voices except es-ES
       const esmx = voices.find(v => (v.lang || '').toLowerCase() === 'es-mx');
       const esus = voices.find(v => (v.lang || '').toLowerCase() === 'es-us');
-      chosen = esmx || esus || voices.find(v => {
-        const lang = (v.lang || '').toLowerCase();
-        return lang.startsWith('es') && lang !== 'es-es';
-      }) || null;
+      const eses = voices.find(v => (v.lang || '').toLowerCase() === 'es-es');
+      chosen = esmx || esus || eses || voices.find(v => (v.lang || '').toLowerCase().startsWith('es')) || null;
     }
-
     if (chosen) utter.voice = chosen;
   }
 
   window.speechSynthesis.speak(utter);
 }
 
-// ========== CATEGORY UI ==========
+// ========== FILTER UI ==========
 function renderCategoryCheckboxes() {
   const selected = new Set(STATE.categories);
   categoryGrid.innerHTML = '';
@@ -239,34 +204,40 @@ function renderCategoryCheckboxes() {
     categoryGrid.appendChild(col);
   });
 }
-
+function renderLevelCheckboxes() {
+  const selected = new Set(STATE.levels.length ? STATE.levels : LEVELS);
+  levelGrid.innerHTML = '';
+  LEVELS.forEach((lvl, i) => {
+    const id = `lvl-${i}`;
+    const col = document.createElement('div');
+    col.className = 'col-6 col-md-4';
+    col.innerHTML = `
+      <div class="form-check">
+        <input class="form-check-input lvl-check" type="checkbox" id="${id}" value="${lvl}" ${selected.has(lvl) ? 'checked' : ''}>
+        <label class="form-check-label" for="${id}">${lvl}</label>
+      </div>
+    `;
+    levelGrid.appendChild(col);
+  });
+}
 function getSelectedCategories() {
   return Array.from(document.querySelectorAll('.cat-check:checked')).map(cb => cb.value);
 }
+function getSelectedLevels() {
+  return Array.from(document.querySelectorAll('.lvl-check:checked')).map(cb => cb.value);
+}
 
 // ========== SCREENS ==========
-function showWelcome() {
-  elWelcome.classList.remove('d-none');
-  elGame.classList.add('d-none');
-  elFinish.classList.add('d-none');
-}
-function showGame() {
-  elWelcome.classList.add('d-none');
-  elGame.classList.remove('d-none');
-  elFinish.classList.add('d-none');
-}
-function showFinish() {
-  elWelcome.classList.add('d-none');
-  elGame.classList.add('d-none');
-  elFinish.classList.remove('d-none');
-}
+function showWelcome(){ elWelcome.classList.remove('d-none'); elGame.classList.add('d-none'); elFinish.classList.add('d-none'); }
+function showGame(){ elWelcome.classList.add('d-none'); elGame.classList.remove('d-none'); elFinish.classList.add('d-none'); }
+function showFinish(){ elWelcome.classList.add('d-none'); elGame.classList.add('d-none'); elFinish.classList.remove('d-none'); }
 
 // ========== GAME CONTROL ==========
 function buildPoolWords() {
-  const chosen = STATE.categories.length ? STATE.categories : [...CATEGORIES];
-  STATE.poolWords = WORDS.filter(w => chosen.includes(w.cat));
+  const chosenCats = STATE.categories.length ? STATE.categories : [...CATEGORIES];
+  const chosenLvls = STATE.levels.length ? STATE.levels : [...LEVELS];
+  STATE.poolWords = WORDS.filter(w => chosenCats.includes(w.cat) && chosenLvls.includes(w.level));
 }
-
 function makeOrder() {
   const idxs = STATE.poolWords.map((_, i) => i);
   return shuffle(idxs);
@@ -276,13 +247,12 @@ function startGame() {
   STATE.player = inputName.value.trim() || 'friend';
   STATE.autoplay = !!(toggleAutoplaySetup.checked);
   STATE.categories = getSelectedCategories();
+  STATE.levels = getSelectedLevels();
   savePrefs();
 
   buildPoolWords();
-
-  // Ensure we have at least 1 word and enough distractors.
   if (STATE.poolWords.length === 0) {
-    // If nothing selected, default to all
+    // If nothing matches (e.g., no levels checked), default to all
     STATE.poolWords = [...WORDS];
   }
 
@@ -292,7 +262,6 @@ function startGame() {
   STATE.score = 0;
   STATE.awaiting = true;
 
-  // UI setup
   uiPlayer.textContent = STATE.player;
   subtitleUI.textContent = STATE.mode === 'es'
     ? 'Translate this Spanish word:'
@@ -326,17 +295,15 @@ function nextQuestion() {
   const wordIdx = STATE.order[STATE.round];
   const pair = STATE.poolWords[wordIdx];
 
-  // Determine prompt and correct answer based on mode
+  // Prompt/answer based on mode
   const prompt = STATE.mode === 'es' ? pair.es : pair.en;
   const correct = STATE.mode === 'es' ? pair.en : pair.es;
 
-  // Set prompt + TTS language
+  // Prompt text + image
   promptWord.textContent = prompt;
   STATE.currentText = prompt;
   STATE.currentLang = STATE.mode === 'es' ? 'es-MX' : 'en-US';
 
-  // Show image for the current word (if available)
-  const promptImage = document.getElementById('prompt-image');
   if (pair.img) {
     promptImage.src = pair.img;
     promptImage.alt = `Image of ${prompt}`;
@@ -347,22 +314,17 @@ function nextQuestion() {
     promptImage.style.display = 'none';
   }
 
-  // Build distractor pool from selected categories; fallback to global pool if needed
-  const selectedPool = STATE.mode === 'es'
-    ? STATE.poolWords.map(w => w.en)
-    : STATE.poolWords.map(w => w.es);
-
-  let distractorPool = selectedPool.filter(w => w !== correct);
+  // Build options (1 correct + 3 distractors) from filtered pool
+  const pool = STATE.mode === 'es' ? STATE.poolWords.map(w => w.en) : STATE.poolWords.map(w => w.es);
+  let distractorPool = pool.filter(w => w !== correct);
   if (distractorPool.length < 3) {
-    const globalPool = (STATE.mode === 'es' ? WORDS.map(w => w.en) : WORDS.map(w => w.es))
-      .filter(w => w !== correct);
+    const globalPool = (STATE.mode === 'es' ? WORDS.map(w => w.en) : WORDS.map(w => w.es)).filter(w => w !== correct);
     distractorPool = unique([...distractorPool, ...globalPool]);
   }
-
   const distractors = shuffle(distractorPool).slice(0, 3);
   const options = shuffle([correct, ...distractors]);
 
-  // Render 4 option buttons (1 col xs, 2 cols md+)
+  // Render buttons (1 col on xs, 2 cols md+)
   options.forEach((opt) => {
     const col = document.createElement('div');
     col.className = 'col-12 col-md-6';
@@ -375,7 +337,7 @@ function nextQuestion() {
     optionsGrid.appendChild(col);
   });
 
-  // Auto-play if enabled and supported
+  // Auto-play if enabled
   if (('speechSynthesis' in window) && (STATE.autoplay || toggleAutoplayInGame.checked)) {
     setTimeout(() => speak(STATE.currentText, STATE.currentLang), 250);
   }
@@ -385,7 +347,6 @@ function nextQuestion() {
 
 function handleAnswer(isCorrect, btn) {
   if (!STATE.awaiting) return;
-
   if (isCorrect) {
     STATE.score++;
     feedback.textContent = `That's correct, ${STATE.player}! 🎉`;
@@ -404,7 +365,7 @@ function handleAnswer(isCorrect, btn) {
   }
 }
 
-// ========== NAV / BUTTON EVENTS ==========
+// ========== EVENTS ==========
 formSetup.addEventListener('submit', (e) => {
   e.preventDefault();
   startGame();
@@ -413,19 +374,20 @@ formSetup.addEventListener('submit', (e) => {
 btnDemo.addEventListener('click', async () => {
   inputName.value = inputName.value.trim() || 'Player';
   document.getElementById('mode-es').checked = true;
-  // Select all categories for demo
+  // Select all categories and levels for demo
   STATE.categories = [...CATEGORIES];
+  STATE.levels = [...LEVELS];
   renderCategoryCheckboxes();
+  renderLevelCheckboxes();
   document.querySelectorAll('.cat-check').forEach(cb => cb.checked = true);
+  document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = true);
   toggleAutoplaySetup.checked = true;
 
-  // Try to auto-pick an es-MX voice if present
   await populateVoiceSelectEs();
   const opt = Array.from(voiceSelectEs.options).find(o => /es-MX/i.test(o.textContent));
   if (opt) voiceSelectEs.value = opt.value;
   STATE.spanishVoiceURI = voiceSelectEs.value;
   savePrefs();
-
   startGame();
 });
 
@@ -433,6 +395,11 @@ btnSelectAll.addEventListener('click', () => {
   const current = getSelectedCategories();
   const selectAll = current.length !== CATEGORIES.length;
   document.querySelectorAll('.cat-check').forEach(cb => cb.checked = selectAll);
+});
+btnSelectAllLevels.addEventListener('click', () => {
+  const current = getSelectedLevels();
+  const selectAll = current.length !== LEVELS.length;
+  document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = selectAll);
 });
 
 btnSkip.addEventListener('click', () => {
@@ -443,7 +410,6 @@ btnSkip.addEventListener('click', () => {
 btnSwitch.addEventListener('click', () => {
   STATE.mode = STATE.mode === 'es' ? 'en' : 'es';
   savePrefs();
-  // restart but keep categories & autoplay
   STATE.round = 0;
   STATE.score = 0;
   STATE.order = makeOrder();
@@ -454,7 +420,6 @@ btnSwitch.addEventListener('click', () => {
 });
 
 btnRestart.addEventListener('click', () => {
-  // restart with same settings
   STATE.round = 0;
   STATE.score = 0;
   STATE.order = makeOrder();
@@ -462,15 +427,14 @@ btnRestart.addEventListener('click', () => {
   updateScoreUI();
 });
 
-// In-game toggle keeps preferences in sync
 toggleAutoplayInGame.addEventListener('change', () => {
   STATE.autoplay = toggleAutoplayInGame.checked;
   toggleAutoplaySetup.checked = STATE.autoplay;
   savePrefs();
 });
 
-// Finish screen buttons
-finishReplay.addEventListener('click', () => {
+// Finish screen
+finishReplay?.addEventListener('click', () => {
   STATE.round = 0;
   STATE.score = 0;
   STATE.order = makeOrder();
@@ -478,8 +442,7 @@ finishReplay.addEventListener('click', () => {
   nextQuestion();
   updateScoreUI();
 });
-
-finishSwitch.addEventListener('click', () => {
+finishSwitch?.addEventListener('click', () => {
   STATE.mode = STATE.mode === 'es' ? 'en' : 'es';
   savePrefs();
   showGame();
@@ -491,16 +454,9 @@ finishSwitch.addEventListener('click', () => {
     : 'Translate this English word:';
   nextQuestion();
 });
+document.getElementById('finish-category')?.addEventListener('click', () => showWelcome());
 
-// New: Select new category button
-const finishCategory = document.getElementById('finish-category');
-if (finishCategory) {
-  finishCategory.addEventListener('click', () => {
-    showWelcome();
-  });
-}
-
-// Speaker button
+// Speaker
 if (!('speechSynthesis' in window)) {
   btnSpeak.classList.add('d-none');
 } else {
@@ -509,26 +465,34 @@ if (!('speechSynthesis' in window)) {
   });
 }
 
-// Voice dropdown + refresh handlers
-if (voiceSelectEs) {
-  voiceSelectEs.addEventListener('change', () => {
-    STATE.spanishVoiceURI = voiceSelectEs.value; // '' = Auto
-    savePrefs();
-  });
-}
-if (btnRefreshVoices) {
-  btnRefreshVoices.addEventListener('click', () => {
-    populateVoiceSelectEs();
-  });
-}
+// Voice dropdown + refresh
+voiceSelectEs?.addEventListener('change', () => {
+  STATE.spanishVoiceURI = voiceSelectEs.value;
+  savePrefs();
+});
+btnRefreshVoices?.addEventListener('click', () => populateVoiceSelectEs());
 
-// Initialize UI on load
+// Init
 loadPrefs();
 renderCategoryCheckboxes();
+renderLevelCheckboxes();
 
-// Show/hide Spanish voice selector section based on preference
+// Restore saved checks
+if (STATE.categories.length) {
+  document.querySelectorAll('.cat-check').forEach(cb => cb.checked = STATE.categories.includes(cb.value));
+} else {
+  // default: all categories checked
+  document.querySelectorAll('.cat-check').forEach(cb => cb.checked = true);
+}
+if (STATE.levels.length) {
+  document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = STATE.levels.includes(cb.value));
+} else {
+  // default: all levels checked
+  document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = true);
+}
+
+// Show/hide Spanish voice selector area
 if (voiceSelectControls && toggleVoiceSelect && toggleVoiceLabel) {
-  // Only the dropdown, refresh button, and help text are hidden/shown
   voiceSelectControls.style.display = STATE.showVoiceSelect ? '' : 'none';
   toggleVoiceSelect.checked = STATE.showVoiceSelect;
   toggleVoiceLabel.textContent = STATE.showVoiceSelect ? 'Hide' : 'Unhide';
@@ -540,13 +504,7 @@ if (voiceSelectControls && toggleVoiceSelect && toggleVoiceLabel) {
   });
 }
 
-if (STATE.categories.length) {
-  document.querySelectorAll('.cat-check').forEach(cb => {
-    cb.checked = STATE.categories.includes(cb.value);
-  });
-}
-
-// Populate voices ASAP; also handle late availability
+// Populate voices (handle late availability on mobile)
 if ('speechSynthesis' in window) {
   populateVoiceSelectEs();
   window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelectEs);
