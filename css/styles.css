@@ -1,3 +1,33 @@
+/* End button styling and positioning */
+.btn-end-game {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 10;
+  background: linear-gradient(90deg, #3b0764 0%, #d946ef 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px 0 #a5b4fc33;
+  padding: 0.7em 1.4em;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  transition: background 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s cubic-bezier(.4,0,.2,1);
+}
+.btn-end-game:hover, .btn-end-game:focus {
+  background: linear-gradient(90deg, #d946ef 0%, #3b0764 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px 0 #d946ef55;
+}
+@media (max-width: 600px) {
+  .btn-end-game {
+    right: 0.7rem;
+    bottom: 0.7rem;
+    font-size: 1rem;
+    padding: 0.6em 1em;
+  }
+}
 /* Prompt image styling */
 #prompt-image {
   border: 2px solid #c7d2fe;
@@ -27,10 +57,12 @@ body {
 
 .card {
   border-radius: 1rem;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 2px 16px 0 rgba(120, 80, 180, 0.08);
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 4px 24px 0 #a5b4fc33, 0 1.5px 8px 0 #d946ef22;
   border: none;
+  box-shadow: 0 2px 12px 0 #d946ef22;
 }
+
 
 .option-btn {
   text-align: left;
@@ -54,7 +86,7 @@ body {
   color: #7c3aed;
   border-radius: 50%;
   border: none;
-  box-shadow: 0 1px 4px 0 #a5b4fc33;
+  box-shadow: 0 2px 8px 0 #a5b4fc33, 0 1.5px 8px 0 #d946ef22;
 }
 #btn-speak:hover {
   background: #ffe5ec;

@@ -162,4 +162,4 @@ const WORDS = [
 
 // Derived lists for filters (your UI reads these automatically)
 const CATEGORIES = Array.from(new Set(WORDS.map(w => w.cat))).sort();
-const LEVELS = Array.from(new Set(WORDS.map(w => w.level))).sort();
+const LEVELS = ["Beginner", "Moderate", "Expert"];

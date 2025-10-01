@@ -31,6 +31,14 @@ const feedback   = document.getElementById('feedback');
 const btnSkip    = document.getElementById('btn-skip');
 const btnSwitch  = document.getElementById('btn-switch');
 const btnRestart = document.getElementById('btn-restart');
+const btnEnd     = document.getElementById('btn-end');
+// End button: return to home and reset score
+btnEnd?.addEventListener('click', () => {
+  STATE.score = 0;
+  STATE.round = 0;
+  showWelcome();
+  updateScoreUI();
+});
 
 const toggleAutoplaySetup  = document.getElementById('toggle-autoplay');
 const toggleAutoplayInGame = document.getElementById('toggle-autoplay-ingame');
@@ -75,6 +83,9 @@ function savePrefs() {
     localStorage.setItem('bv_levels', JSON.stringify(STATE.levels));
     localStorage.setItem('bv_voice_es', STATE.spanishVoiceURI || '');
     localStorage.setItem('bv_show_voice_select', String(STATE.showVoiceSelect));
+    localStorage.setItem('bv_score', String(STATE.score));
+    localStorage.setItem('bv_round', String(STATE.round));
+    localStorage.setItem('bv_order', JSON.stringify(STATE.order));
   } catch {}
 }
 
@@ -87,8 +98,14 @@ function loadPrefs() {
     const l = localStorage.getItem('bv_levels');
     const v = localStorage.getItem('bv_voice_es');
     const s = localStorage.getItem('bv_show_voice_select');
+    const score = localStorage.getItem('bv_score');
+    const round = localStorage.getItem('bv_round');
+    const order = localStorage.getItem('bv_order');
 
-    if (p) inputName.value = p;
+    if (p) {
+      inputName.value = p;
+      STATE.player = p;
+    }
     if (m) document.getElementById(`mode-${m}`)?.setAttribute('checked', 'checked');
     if (a !== null) {
       const val = a === 'true';
@@ -105,6 +122,14 @@ function loadPrefs() {
     }
     if (typeof v === 'string') STATE.spanishVoiceURI = v;
     if (typeof s === 'string') STATE.showVoiceSelect = (s === 'true');
+    if (score !== null && !isNaN(Number(score))) STATE.score = Number(score);
+    if (round !== null && !isNaN(Number(round))) STATE.round = Number(round);
+    if (order) {
+      try {
+        const arr = JSON.parse(order);
+        if (Array.isArray(arr)) STATE.order = arr;
+      } catch {}
+    }
   } catch {}
 }
 
@@ -228,9 +253,24 @@ function getSelectedLevels() {
 }
 
 // ========== SCREENS ==========
-function showWelcome(){ elWelcome.classList.remove('d-none'); elGame.classList.add('d-none'); elFinish.classList.add('d-none'); }
-function showGame(){ elWelcome.classList.add('d-none'); elGame.classList.remove('d-none'); elFinish.classList.add('d-none'); }
-function showFinish(){ elWelcome.classList.add('d-none'); elGame.classList.add('d-none'); elFinish.classList.remove('d-none'); }
+function showWelcome(){
+  elWelcome.classList.remove('d-none');
+  elGame.classList.add('d-none');
+  elFinish.classList.add('d-none');
+  localStorage.setItem('bv_screen', 'welcome');
+}
+function showGame(){
+  elWelcome.classList.add('d-none');
+  elGame.classList.remove('d-none');
+  elFinish.classList.add('d-none');
+  localStorage.setItem('bv_screen', 'game');
+}
+function showFinish(){
+  elWelcome.classList.add('d-none');
+  elGame.classList.add('d-none');
+  elFinish.classList.remove('d-none');
+  localStorage.setItem('bv_screen', 'finish');
+}
 
 // ========== GAME CONTROL ==========
 function buildPoolWords() {
@@ -354,6 +394,7 @@ function handleAnswer(isCorrect, btn) {
     feedback.classList.add('text-success');
     STATE.round++;
     STATE.awaiting = false;
+    savePrefs();
     updateScoreUI();
     setTimeout(nextQuestion, 500);
   } else {
@@ -404,15 +445,16 @@ btnSelectAllLevels.addEventListener('click', () => {
 
 btnSkip.addEventListener('click', () => {
   STATE.round++;
+  savePrefs();
   nextQuestion();
 });
 
 btnSwitch.addEventListener('click', () => {
   STATE.mode = STATE.mode === 'es' ? 'en' : 'es';
-  savePrefs();
   STATE.round = 0;
   STATE.score = 0;
   STATE.order = makeOrder();
+  savePrefs();
   subtitleUI.textContent = STATE.mode === 'es'
     ? 'Translate this Spanish word:'
     : 'Translate this English word:';
@@ -423,6 +465,7 @@ btnRestart.addEventListener('click', () => {
   STATE.round = 0;
   STATE.score = 0;
   STATE.order = makeOrder();
+  savePrefs();
   nextQuestion();
   updateScoreUI();
 });
@@ -481,13 +524,11 @@ renderLevelCheckboxes();
 if (STATE.categories.length) {
   document.querySelectorAll('.cat-check').forEach(cb => cb.checked = STATE.categories.includes(cb.value));
 } else {
-  // default: all categories checked
   document.querySelectorAll('.cat-check').forEach(cb => cb.checked = true);
 }
 if (STATE.levels.length) {
   document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = STATE.levels.includes(cb.value));
 } else {
-  // default: all levels checked
   document.querySelectorAll('.lvl-check').forEach(cb => cb.checked = true);
 }
 
@@ -508,4 +549,30 @@ if (voiceSelectControls && toggleVoiceSelect && toggleVoiceLabel) {
 if ('speechSynthesis' in window) {
   populateVoiceSelectEs();
   window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelectEs);
+}
+
+// Restore last screen on refresh
+const lastScreen = localStorage.getItem('bv_screen');
+if (lastScreen === 'game') {
+  // If game state is missing, re-initialize from prefs
+  if (!STATE.poolWords || !STATE.poolWords.length) {
+    STATE.categories = getSelectedCategories();
+    STATE.levels = getSelectedLevels();
+    buildPoolWords();
+  }
+  if (!STATE.order || !STATE.order.length) {
+    STATE.order = makeOrder();
+  }
+  // Only reset round/score if not restored
+  if (typeof STATE.round !== 'number' || isNaN(STATE.round)) STATE.round = 0;
+  if (typeof STATE.score !== 'number' || isNaN(STATE.score)) STATE.score = 0;
+  STATE.awaiting = true;
+  showGame();
+  uiPlayer.textContent = STATE.player || '—';
+  nextQuestion();
+  updateScoreUI();
+} else if (lastScreen === 'finish') {
+  showFinish();
+} else {
+  showWelcome();
 }
