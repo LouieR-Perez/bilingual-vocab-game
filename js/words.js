@@ -43,25 +43,25 @@ const WORDS = [
   { en: "city",      es: "ciudad",      cat: "Travel",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/d/de/St_Louis_night_expblend.jpg" },
 
   // Colors (Beginner)
-  { en: "red",       es: "rojo",        cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/FF0000/FFFFFF?text=red" },
-  { en: "blue",      es: "azul",        cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/1E3A8A/FFFFFF?text=blue" },
-  { en: "green",     es: "verde",       cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/15803D/FFFFFF?text=green" },
-  { en: "yellow",    es: "amarillo",    cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/F59E0B/000000?text=yellow" },
-  { en: "black",     es: "negro",       cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/000000/FFFFFF?text=black" },
-  { en: "white",     es: "blanco",      cat: "Colors",   level: "Beginner", img: "https://via.placeholder.com/200/FFFFFF/000000?text=white" },
+    { en: "red",       es: "rojo",        cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/1/17/Red_crayon_half_icon.svg" },
+    { en: "blue",      es: "azul",        cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/3/38/Blue_crayon_half_icon.svg" },
+    { en: "green",     es: "verde",       cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Green_crayon_half_icon.svg" },
+    { en: "yellow",    es: "amarillo",    cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Yellow_crayon_half_icon.svg" },
+    { en: "black",     es: "negro",       cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/NotoSans_-_Lower_Left_Crayon_-_1F58D.svg" },
+    { en: "white",     es: "blanco",      cat: "Colors",   level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Noun_project_-_crayon_white.svg" },
 
   // Numbers (Beginner 0–10)
-  { en: "zero",      es: "cero",        cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=0" },
-  { en: "one",       es: "uno",         cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=1" },
-  { en: "two",       es: "dos",         cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=2" },
-  { en: "three",     es: "tres",        cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=3" },
-  { en: "four",      es: "cuatro",      cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=4" },
-  { en: "five",      es: "cinco",       cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=5" },
-  { en: "six",       es: "seis",        cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=6" },
-  { en: "seven",     es: "siete",       cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=7" },
-  { en: "eight",     es: "ocho",        cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=8" },
-  { en: "nine",      es: "nueve",       cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=9" },
-  { en: "ten",       es: "diez",        cat: "Numbers",  level: "Beginner", img: "https://via.placeholder.com/200/ffffff/000000?text=10" },
+    { en: "zero",      es: "cero",        cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/d/db/Chess_x0t45.svg" },
+    { en: "one",       es: "uno",         cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/9/91/Calendar_Icon_1_BW.png" },
+  { en: "two",       es: "dos",         cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/2/24/OL_ONAL_DIGIT_TWO.jpg" },
+    { en: "three",     es: "tres",        cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Calendar_Icon_3_RW.png" },
+    { en: "four",      es: "cuatro",      cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/O-Train_Line_4.svg" },
+    { en: "five",      es: "cinco",       cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Eagles_5_green_blk_outline.svg" },
+    { en: "six",       es: "seis",        cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Calendar_Icon_6_RW.png" },
+    { en: "seven",     es: "siete",       cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/3/37/Calendar_Icon_7_BW.png" },
+    { en: "eight",     es: "ocho",        cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Number_8_in_circle.svg" },
+    { en: "nine",      es: "nueve",       cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/Calendar_Icon_9_RW.png" },
+    { en: "ten",       es: "diez",        cat: "Numbers",  level: "Beginner", img: "https://upload.wikimedia.org/wikipedia/commons/5/55/Calendar_Icon_10_RW.png" },
 
   // ===== Moderate (Grades 3–6) =====
   // Animals
@@ -95,23 +95,23 @@ const WORDS = [
   { en: "park",      es: "parque",      cat: "Travel",   level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/6/64/Central_Park_New_York_City_New_York_23_crop.jpg" },
 
   // Colors (Moderate)
-  { en: "orange",    es: "naranja",     cat: "Colors",   level: "Moderate", img: "https://via.placeholder.com/200/F97316/000000?text=orange" },
-  { en: "purple",    es: "morado",      cat: "Colors",   level: "Moderate", img: "https://via.placeholder.com/200/7C3AED/FFFFFF?text=purple" },
-  { en: "pink",      es: "rosa",        cat: "Colors",   level: "Moderate", img: "https://via.placeholder.com/200/F472B6/000000?text=pink" },
-  { en: "brown",     es: "café",        cat: "Colors",   level: "Moderate", img: "https://via.placeholder.com/200/6B4226/FFFFFF?text=brown" },
-  { en: "gray",      es: "gris",        cat: "Colors",   level: "Moderate", img: "https://via.placeholder.com/200/9CA3AF/000000?text=gray" },
+    { en: "orange",    es: "naranja",     cat: "Colors",   level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/2/26/Orange_crayon_half_icon.svg" },
+    { en: "purple",    es: "morado",      cat: "Colors",   level: "Moderate", img: "https://placehold.co/200x200/7C3AED/FFFFFF?text=purple" },
+    { en: "pink",      es: "rosa",        cat: "Colors",   level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/7/71/Earl-Solace-Cover.jpg" },
+    { en: "brown",     es: "café",        cat: "Colors",   level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Color_icon_brown.svg" },
+    { en: "gray",      es: "gris",        cat: "Colors",   level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Color_icon_gray.svg" },
 
   // Numbers (Moderate 11–20)
-  { en: "eleven",    es: "once",        cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=11" },
-  { en: "twelve",    es: "doce",        cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=12" },
-  { en: "thirteen",  es: "trece",       cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=13" },
-  { en: "fourteen",  es: "catorce",     cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=14" },
-  { en: "fifteen",   es: "quince",      cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=15" },
-  { en: "sixteen",   es: "dieciséis",   cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=16" },
-  { en: "seventeen", es: "diecisiete",  cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=17" },
-  { en: "eighteen",  es: "dieciocho",   cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=18" },
-  { en: "nineteen",  es: "diecinueve",  cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=19" },
-  { en: "twenty",    es: "veinte",      cat: "Numbers",  level: "Moderate", img: "https://via.placeholder.com/200/ffffff/000000?text=20" },
+    { en: "eleven",    es: "once",        cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Calendar_Icon_11_BW.png" },
+    { en: "twelve",    es: "doce",        cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Calendar_Icon_12_RW.png" },
+    { en: "thirteen",  es: "trece",       cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Calendar_Icon_13_BW.png" },
+    { en: "fourteen",  es: "catorce",     cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/4/48/Calendar_Icon_14_BW.png" },
+    { en: "fifteen",   es: "quince",      cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/3/38/Calendar_Icon_15_RW.png" },
+    { en: "sixteen",   es: "dieciséis",   cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/f/f5/Calendar_Icon_16_BW.png" },
+    { en: "seventeen", es: "diecisiete",  cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/b/b7/Calendar_Icon_17_BW.png" },
+    { en: "eighteen",  es: "dieciocho",   cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Calendar_Icon_18_RW.png" },
+    { en: "nineteen",  es: "diecinueve",  cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Calendar_Icon_19_BW.png" },
+    { en: "twenty",    es: "veinte",      cat: "Numbers",  level: "Moderate", img: "https://upload.wikimedia.org/wikipedia/commons/4/45/Calendar_Icon_20_BW.png" },
 
   // ===== Expert (Grades 7–12) =====
   // Animals
@@ -145,19 +145,19 @@ const WORDS = [
   { en: "language",  es: "idioma",      cat: "School",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Multilingual_sign_singapore.jpg" },
 
   // Colors (Expert)
-  { en: "turquoise", es: "turquesa",    cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/06B6D4/000000?text=turquoise" },
-  { en: "violet",    es: "violeta",     cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/8B5CF6/FFFFFF?text=violet" },
-  { en: "beige",     es: "beige",       cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/F5F5DC/000000?text=beige" },
-  { en: "silver",    es: "plata",       cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/C0C0C0/000000?text=silver" },
-  { en: "gold",      es: "oro",         cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/FFD700/000000?text=gold" },
-  { en: "maroon",    es: "guinda",      cat: "Colors",   level: "Expert",   img: "https://via.placeholder.com/200/800000/FFFFFF?text=maroon" },
+    { en: "turquoise", es: "turquesa",    cat: "Colors",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/1/16/Turquoise_circle.svg" },
+    { en: "violet",    es: "violeta",     cat: "Colors",   level: "Expert",   img: "https://placehold.co/200x200/8B5CF6/FFFFFF?text=violet" },
+    { en: "beige",     es: "beige",       cat: "Colors",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/3/33/Beige.svg" },
+    { en: "silver",    es: "plata",       cat: "Colors",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/d/d7/Silver_square.svg" },
+    { en: "gold",      es: "oro",         cat: "Colors",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/1/17/Gold_Color_Sample.jpg" },
+    { en: "maroon",    es: "guinda",      cat: "Colors",   level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Maroon.svg" },
 
   // Numbers (Expert – larger steps)
-  { en: "thirty",    es: "treinta",     cat: "Numbers",  level: "Expert",   img: "https://via.placeholder.com/200/ffffff/000000?text=30" },
-  { en: "forty",     es: "cuarenta",    cat: "Numbers",  level: "Expert",   img: "https://via.placeholder.com/200/ffffff/000000?text=40" },
-  { en: "fifty",     es: "cincuenta",   cat: "Numbers",  level: "Expert",   img: "https://via.placeholder.com/200/ffffff/000000?text=50" },
-  { en: "one hundred", es: "cien",      cat: "Numbers",  level: "Expert",   img: "https://via.placeholder.com/200/ffffff/000000?text=100" },
-  { en: "one thousand", es: "mil",      cat: "Numbers",  level: "Expert",   img: "https://via.placeholder.com/200/ffffff/000000?text=1000" },
+    { en: "thirty",    es: "treinta",     cat: "Numbers",  level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/2/25/Calendar_Icon_30_BW.png" },
+    { en: "forty",     es: "cuarenta",    cat: "Numbers",  level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/4/45/Num-encercl-40.png" },
+    { en: "fifty",     es: "cincuenta",   cat: "Numbers",  level: "Expert",   img: "https://upload.wikimedia.org/wikipedia/commons/8/80/Number_50.png" },
+  { en: "one hundred", es: "cien",      cat: "Numbers",  level: "Expert",   img: "https://placehold.co/200x200/FFFFFF/000000?text=100" },
+  { en: "one thousand", es: "mil",      cat: "Numbers",  level: "Expert",   img: "https://placehold.co/200x200/FFFFFF/000000?text=1000" },
 ];
 
 // Derived lists for filters (your UI reads these automatically)

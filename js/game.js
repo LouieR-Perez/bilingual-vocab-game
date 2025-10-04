@@ -319,10 +319,51 @@ function updateScoreUI() {
   scoreUI.textContent = `Score: ${STATE.score} • Question ${Math.min(STATE.round + 1, STATE.poolWords.length)}/${STATE.poolWords.length}`;
 }
 
+// Finish messages
+const FINISH_MESSAGES = [
+  "Nice work, {name}! 🎉",
+  "Awesome job, {name}! 🥳",
+  "You did it, {name}! 🚀",
+  "Bravo, {name}! 👏",
+  "Fantastic effort, {name}! 🌟",
+  "Way to go, {name}! 🎈",
+  "Superb, {name}! 🏆",
+  "Great job, {name}! 😃",
+  "Congratulations, {name}! 🎊"
+];
+const ENCOURAGING_MESSAGES = [
+  "Try again for a higher score, {name}! 🔄",
+  "Every attempt makes you better, {name}! 🧠",
+  "You're learning fast, {name}! 📚",
+  "Your progress is impressive, {name}! 🚀",
+  "Great effort, {name}! Keep going! 🌟",
+  "You're building strong skills, {name}! 🏗️",
+  "Practice makes perfect, {name}! 🎯",
+  "Persistence pays off, {name}! 💡"
+];
+
+function getRandomMessage(arr, name) {
+  const msg = arr[Math.floor(Math.random() * arr.length)];
+  return msg.replace('{name}', name || 'friend');
+}
+
 function nextQuestion() {
   if (STATE.round >= STATE.order.length) {
     finishPlayer.textContent = STATE.player || 'friend';
     finishScore.textContent = `${STATE.score}/${STATE.poolWords.length}`;
+    // Pick message based on score
+    const percent = STATE.poolWords.length ? (STATE.score / STATE.poolWords.length) * 100 : 0;
+    let msg;
+    if (percent >= 80) {
+      msg = getRandomMessage(FINISH_MESSAGES, STATE.player);
+    } else {
+      msg = getRandomMessage(ENCOURAGING_MESSAGES, STATE.player);
+    }
+    // Update finish screen message
+    const finishMsgEl = document.querySelector('#screen-finish h2');
+    if (finishMsgEl) {
+      finishMsgEl.innerHTML = msg;
+    }
     showFinish();
     return;
   }
