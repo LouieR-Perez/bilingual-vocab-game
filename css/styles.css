@@ -161,6 +161,20 @@ body {
   border-color: #7c3aed;
 }
 
+/* Correct answer button (green background and text) */
+.btn-correct {
+  background: #bbf7d0 !important; /* light green */
+  border: 2px solid #059669 !important;
+  color: #065f46 !important; /* dark green text */
+  font-weight: 700;
+  box-shadow: 0 2px 8px 0 #05966933;
+}
+.btn-correct:hover, .btn-correct:focus {
+  background: #86efac !important;
+  color: #065f46 !important;
+  border-color: #047857 !important;
+}
+
 /* Subtle shake on wrong answer */
 .shake { animation: shake 300ms ease-in-out 1; }
 @keyframes shake {

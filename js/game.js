@@ -67,6 +67,8 @@ const STATE = {
   currentText: '',
   currentLang: 'es-MX',
   awaiting: true,
+  attempts: 0,          // wrong attempts made for current question
+  currentCorrect: '',   // current correct answer text (target language)
   // voice prefs
   voices: [],
   spanishVoiceURI: '',   // saved user's choice (voiceURI); '' = auto
@@ -86,6 +88,7 @@ function savePrefs() {
     localStorage.setItem('bv_score', String(STATE.score));
     localStorage.setItem('bv_round', String(STATE.round));
     localStorage.setItem('bv_order', JSON.stringify(STATE.order));
+    localStorage.setItem('bv_attempts', String(STATE.attempts));
   } catch {}
 }
 
@@ -101,6 +104,7 @@ function loadPrefs() {
     const score = localStorage.getItem('bv_score');
     const round = localStorage.getItem('bv_round');
     const order = localStorage.getItem('bv_order');
+  const attempts = localStorage.getItem('bv_attempts');
 
     if (p) {
       inputName.value = p;
@@ -130,6 +134,7 @@ function loadPrefs() {
         if (Array.isArray(arr)) STATE.order = arr;
       } catch {}
     }
+    if (attempts !== null && !isNaN(Number(attempts))) STATE.attempts = Number(attempts);
   } catch {}
 }
 
@@ -316,7 +321,10 @@ function startGame() {
 }
 
 function updateScoreUI() {
-  scoreUI.textContent = `Score: ${STATE.score} • Question ${Math.min(STATE.round + 1, STATE.poolWords.length)}/${STATE.poolWords.length}`;
+  // Display attempts used out of 2 when in game screen
+  const qNum = Math.min(STATE.round + 1, STATE.poolWords.length);
+  const attemptsInfo = STATE.awaiting ? ` • Attempts: ${STATE.attempts}/2` : '';
+  scoreUI.textContent = `Score: ${STATE.score} • Question ${qNum}/${STATE.poolWords.length}${attemptsInfo}`;
 }
 
 // Finish messages
@@ -369,6 +377,7 @@ function nextQuestion() {
   }
 
   STATE.awaiting = true;
+  STATE.attempts = 0; // reset attempts for new question
   feedback.textContent = '';
   feedback.classList.remove('text-success', 'text-danger');
   optionsGrid.innerHTML = '';
@@ -379,6 +388,7 @@ function nextQuestion() {
   // Prompt/answer based on mode
   const prompt = STATE.mode === 'es' ? pair.es : pair.en;
   const correct = STATE.mode === 'es' ? pair.en : pair.es;
+  STATE.currentCorrect = correct; // store for reveal if needed
 
   // Prompt text + image
   promptWord.textContent = prompt;
@@ -428,6 +438,7 @@ function nextQuestion() {
 
 function handleAnswer(isCorrect, btn) {
   if (!STATE.awaiting) return;
+  // Correct answer within allowed attempts
   if (isCorrect) {
     STATE.score++;
     feedback.textContent = `That's correct, ${STATE.player}! 🎉`;
@@ -435,16 +446,47 @@ function handleAnswer(isCorrect, btn) {
     feedback.classList.add('text-success');
     STATE.round++;
     STATE.awaiting = false;
+    // Disable all buttons to prevent extra clicks during transition
+    optionsGrid.querySelectorAll('button').forEach(b => b.disabled = true);
     savePrefs();
     updateScoreUI();
-    setTimeout(nextQuestion, 500);
-  } else {
-    feedback.textContent = 'Try again!';
-    feedback.classList.remove('text-success');
-    feedback.classList.add('text-danger');
+    setTimeout(nextQuestion, 550);
+    return;
+  }
+
+  // Wrong answer path
+  STATE.attempts++;
+  btn.disabled = true; // prevent re-clicking the same wrong option
+  feedback.classList.remove('text-success');
+  feedback.classList.add('text-danger');
+
+  if (STATE.attempts < 2) {
+    const attemptsLeft = 2 - STATE.attempts;
+    feedback.textContent = attemptsLeft === 1 ? 'Try again! (1 attempt left)' : `Try again! (${attemptsLeft} attempts left)`;
     btn.classList.add('shake');
     setTimeout(() => btn.classList.remove('shake'), 350);
+    savePrefs();
+    updateScoreUI(); // reflect attempts increment
+    return; // still awaiting another attempt
   }
+
+  // Out of attempts: reveal correct answer and advance (no score increment)
+  STATE.awaiting = false;
+  feedback.textContent = `Answer: ${STATE.currentCorrect}`;
+  // Highlight correct button
+  optionsGrid.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === STATE.currentCorrect) {
+      b.classList.remove('btn-outline-primary');
+      b.classList.add('btn-correct');
+    } else {
+      b.classList.add('opacity-75');
+    }
+  });
+  STATE.round++;
+  savePrefs();
+  updateScoreUI();
+  setTimeout(nextQuestion, 1000);
 }
 
 // ========== EVENTS ==========
