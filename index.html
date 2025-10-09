@@ -22,7 +22,7 @@
         <div id="screen-welcome" class="card shadow-sm">
           <div class="card-body p-3 p-md-4 p-lg-5">
             <h1 class="h3 mb-2">Welcome! / ¡Bienvenidos!</h1>
-            <p class="text-secondary mb-4">Enter your name, choose categories & levels, and pick what you want to learn today.</p>
+            <p class="text-secondary mb-4">Enter your name, pick what you want to learn today, choose categories, and levels.</p>
 
             <form id="setup-form" class="row gy-3" autocomplete="off">
               <!-- Name -->
@@ -78,8 +78,8 @@
                 <div class="form-text">Uses your browser’s Text-to-Speech.</div>
               </div>
 
-              <!-- Spanish voice selector -->
-              <div class="col-12">
+              <!-- Spanish voice selector (hidden on home/setup screen) -->
+              <div class="col-12 d-none" id="voice-select-setup-hidden">
                 <div id="voice-select-section">
                   <div class="d-flex align-items-center mb-1">
                     <label for="voice-select-es" class="form-label mb-0">Spanish voice (optional)</label>

@@ -183,10 +183,7 @@ async function populateVoiceSelectEs() {
     opt.textContent = `${v.name} — ${v.lang}`;
     voiceSelectEs.appendChild(opt);
   });
-  if (STATE.spanishVoiceURI) {
-    const match = Array.from(voiceSelectEs.options).find(o => o.value === STATE.spanishVoiceURI);
-    voiceSelectEs.value = match ? STATE.spanishVoiceURI : '';
-  }
+  // Do not set default here; handled in startGame
 }
 
 // Speak helper
@@ -294,6 +291,19 @@ function startGame() {
   if (toggleAutoplaySetup) toggleAutoplaySetup.checked = true;
   STATE.categories = getSelectedCategories();
   STATE.levels = getSelectedLevels();
+  // Auto-select Spanish voice
+  if ('speechSynthesis' in window) {
+    getAllVoices().then(voices => {
+      // Priority: Paulina MX > Estados Unidos/US > es-MX > any es
+      let chosen = voices.find(v => /paulina/i.test(v.name) && /mx/i.test(v.lang + v.name));
+      if (!chosen) chosen = voices.find(v => (/estados unidos|us/i.test(v.name + v.lang)) && /es/i.test(v.lang));
+      if (!chosen) chosen = voices.find(v => /es-mx/i.test(v.lang));
+      if (!chosen) chosen = voices.find(v => (v.lang || '').toLowerCase().startsWith('es'));
+      STATE.spanishVoiceURI = chosen ? chosen.voiceURI : '';
+      if (voiceSelectEs) voiceSelectEs.value = STATE.spanishVoiceURI;
+      savePrefs();
+    });
+  }
   savePrefs();
 
   buildPoolWords();
