@@ -290,7 +290,8 @@ function makeOrder() {
 
 function startGame() {
   STATE.player = inputName.value.trim() || 'friend';
-  STATE.autoplay = !!(toggleAutoplaySetup.checked);
+  STATE.autoplay = true; // Always enabled
+  if (toggleAutoplaySetup) toggleAutoplaySetup.checked = true;
   STATE.categories = getSelectedCategories();
   STATE.levels = getSelectedLevels();
   savePrefs();
